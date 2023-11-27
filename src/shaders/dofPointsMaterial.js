@@ -18,18 +18,24 @@ class DofPointsMaterial extends THREE.ShaderMaterial {
         gl_PointSize = (step(1.0 - (1.0 / uFov), position.x)) * vDistance * uBlur;
       }`,
       fragmentShader: `uniform float uOpacity;
+      uniform float uColorR;
+      uniform float uColorG;
+      uniform float uColorB;
       varying float vDistance;
       void main() {
         vec2 cxy = 2.0 * gl_PointCoord - 1.0;
         if (dot(cxy, cxy) > 1.0) discard;
-        gl_FragColor = vec4(vec3(1.0), (1.04 - clamp(vDistance * 1.5, 0.0, 1.0)));
+        gl_FragColor = vec4(vec3(uColorR, uColorG + clamp(vDistance * .3, 0.0, 0.04), uColorB + clamp(vDistance * .25, 0.0, 0.03)), (1.04 - clamp(vDistance * 1.5, 0.0, 1.0)));
       }`,
       uniforms: {
         positions: { value: null },
         uTime: { value: 0 },
         uFocus: { value: 5.1 },
         uFov: { value: 50 },
-        uBlur: { value: 30 }
+        uBlur: { value: 30 },
+        uColorR: { value: 1 },
+        uColorG: { value: 1 },
+        uColorB: { value: 1 },
       },
       transparent: true,
       blending: THREE.NormalBlending,

@@ -5,11 +5,15 @@ import { useFBO } from '@react-three/drei'
 import './shaders/simulationMaterial'
 import './shaders/dofPointsMaterial'
 
-export function Particles({ speed, fov, aperture, focus, curl, size = 512, ...props }) {
+export function Particles({ speed, fov, aperture, focus, curl, color = "", size = 512, ...props }) {
   const simRef = useRef()
   const renderRef = useRef()
   // Set up FBO
-  const [scene] = useState(() => new THREE.Scene())
+  const [scene] = useState(() => { 
+    let s = new THREE.Scene()
+    s.background = new THREE.Color( 0xff0000 );
+    return s
+  })
   const [camera] = useState(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 1 / Math.pow(2, 53), 1))
   const [positions] = useState(() => new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0]))
   const [uvs] = useState(() => new Float32Array([0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0]))
@@ -36,6 +40,12 @@ export function Particles({ speed, fov, aperture, focus, curl, size = 512, ...pr
     renderRef.current.uniforms.uFocus.value = THREE.MathUtils.lerp(renderRef.current.uniforms.uFocus.value, focus, 0.1)
     renderRef.current.uniforms.uFov.value = THREE.MathUtils.lerp(renderRef.current.uniforms.uFov.value, fov, 0.1)
     renderRef.current.uniforms.uBlur.value = THREE.MathUtils.lerp(renderRef.current.uniforms.uBlur.value, (5.6 - aperture) * 9, 0.1)
+
+    const pointColor = new THREE.Color(color)
+    renderRef.current.uniforms.uColorR.value = pointColor.r;
+    renderRef.current.uniforms.uColorG.value = pointColor.g;
+    renderRef.current.uniforms.uColorB.value = pointColor.b;
+
     simRef.current.uniforms.uTime.value = state.clock.elapsedTime * speed
     simRef.current.uniforms.uCurlFreq.value = THREE.MathUtils.lerp(simRef.current.uniforms.uCurlFreq.value, curl, 0.1)
   })
